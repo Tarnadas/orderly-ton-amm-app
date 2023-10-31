@@ -4,10 +4,10 @@ import { Address, beginCell, fromNano, toNano } from 'ton-core';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AmmCtx, JettonMasterCtx, TonClientCtx } from './App';
 import { OrderlyAmmDeposit, storeWithdrawAll } from './tact/OrderlyAmmDeposit';
-import { storeTokenTransfer } from './tact/JettonMaster';
+import { storeMint, storeTokenTransfer } from './tact/JettonMaster';
 import { JettonWallet } from './tact/JettonWallet';
 
-export const Deposit = () => {
+export const Actions = () => {
   const tonAddress = useTonAddress(false);
   const [tonConnectUI] = useTonConnectUI();
   const client = useContext(TonClientCtx);
@@ -39,6 +39,41 @@ export const Deposit = () => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', marginTop: '2rem' }}>
       <div>Jettons in wallet: {jettonWalletBalance ?? '0'}</div>
       <div>Jettons deposited: {jettonDepositBalance ?? '0'}</div>
+      <button
+        onClick={async () => {
+          if (!jettonMaster || !amm) return;
+          const body = beginCell()
+            .store(
+              storeMint({
+                $$type: 'Mint',
+                amount: toNano('100'),
+                receiver: Address.parseRaw(tonAddress),
+                responseDestination: Address.parseRaw(tonAddress),
+              }),
+            )
+            .endCell();
+
+          const res = await tonConnectUI.sendTransaction({
+            network: CHAIN.TESTNET,
+            messages: [
+              {
+                address: jettonMaster.address.toRawString(),
+                amount: toNano('1').toString(),
+                payload: body.toBoc().toString('base64'),
+              },
+            ],
+            validUntil: Math.floor(Date.now() / 1000) + 360,
+          });
+          console.log('res', res);
+
+          // TODO
+          setTimeout(() => {
+            updateJettonBalance();
+          }, 10_000);
+        }}
+      >
+        Mint 100 Jettons
+      </button>
       <button
         onClick={async () => {
           if (!jettonMaster) return;

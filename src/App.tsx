@@ -4,7 +4,7 @@ import { getHttpV4Endpoint } from '@orbs-network/ton-access';
 
 import './App.css';
 import { Connect } from './Connect';
-import { Deposit } from './Deposit';
+import { Actions } from './Actions';
 import { Address, OpenedContract } from 'ton-core';
 import { TonClient4 } from 'ton';
 import { JettonMaster } from './tact/JettonMaster';
@@ -44,10 +44,16 @@ function App() {
     <TonClientCtx.Provider value={client}>
       <JettonMasterCtx.Provider value={jettonMaster}>
         <AmmCtx.Provider value={amm}>
-          <TonConnectUIProvider manifestUrl="http://localhost:5173/tonconnect-manifest.json">
+          <TonConnectUIProvider
+            manifestUrl={
+              import.meta.env.PROD
+                ? 'https://tarnadas.github.io/orderly-ton-amm-app/tonconnect-manifest.json'
+                : 'http://localhost:5173/tonconnect-manifest-local.json'
+            }
+          >
             <h1>Ton Test TWA</h1>
             <Connect />
-            <Deposit />
+            <Actions />
           </TonConnectUIProvider>
         </AmmCtx.Provider>
       </JettonMasterCtx.Provider>

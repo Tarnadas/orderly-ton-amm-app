@@ -1,5 +1,5 @@
 {
-  "url": "https://tarnadas.github.io/orderly-ton-amm-app",
+  "url": "http://localhost:5173",
   "name": "TON Test TWA",
   "iconUrl": "https://ton.vote/logo.png"
 }
